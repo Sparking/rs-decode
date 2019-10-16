@@ -43,10 +43,15 @@ extern struct generic_gf_poly *generic_gf_build_monomial(const struct generic_gf
 
 extern struct generic_gf_poly *generic_gf_poly_create(const struct generic_gf *gf, unsigned int *coefficients, 
         const unsigned int degree);
+extern struct generic_gf_poly *generic_gf_poly_dump(const struct generic_gf_poly *a);
 extern unsigned int generic_gf_poly_degree(const struct generic_gf_poly *poly);
 extern unsigned int generic_gf_poly_coeffieient(const struct generic_gf_poly *poly, const unsigned int degree);
 extern unsigned int generic_gf_poly_evaluateAt(const struct generic_gf_poly *poly, const unsigned int a);
 extern struct generic_gf_poly *generic_gf_poly_add(const struct generic_gf_poly *a, const struct generic_gf_poly *b);
+extern struct generic_gf_poly *generic_gf_poly_multiply(const struct generic_gf_poly *a, const struct generic_gf_poly *b);
+extern struct generic_gf_poly *generic_gf_poly_multiply_int(const struct generic_gf_poly *a, const unsigned int b);
+extern struct generic_gf_poly *generic_gf_poly_multiply_by_monomial(const struct generic_gf_poly *a,
+            const unsigned int degree, const unsigned int coefficient);
 extern void generic_gf_poly_release(struct generic_gf_poly *poly);
 
 #ifdef __cplusplus

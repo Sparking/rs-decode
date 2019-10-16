@@ -181,7 +181,6 @@ unsigned int generic_gf_poly_coeffieient(const struct generic_gf_poly *poly, con
     return poly->coefficients[poly->degree - degree];
 }
 
-#include <stdio.h>
 unsigned int generic_gf_poly_evaluateAt(const struct generic_gf_poly *poly, const unsigned int a)
 {
     unsigned int result, i;
@@ -195,18 +194,14 @@ unsigned int generic_gf_poly_evaluateAt(const struct generic_gf_poly *poly, cons
             result = generic_gf_add(result, poly->coefficients[i]);
     } else {
         result = poly->coefficients[0];
-        for (i = 1; i <= poly->degree; ++i) {
-            if (generic_gf_multiply(poly->field, a, result) >= 256) {
-                printf("i = %d, res = %d\n", generic_gf_multiply(poly->field, a, result));
-            }
+        for (i = 1; i <= poly->degree; ++i)
             result = generic_gf_add(generic_gf_multiply(poly->field, a, result), poly->coefficients[i]);
-        }
     }
 
     return result;
 }
 
-static struct generic_gf_poly *generic_gf_poly_dump(const struct generic_gf_poly *a)
+struct generic_gf_poly *generic_gf_poly_dump(const struct generic_gf_poly *a)
 {
     struct generic_gf_poly *poly;
 
@@ -264,7 +259,7 @@ struct generic_gf_poly *generic_gf_poly_add(const struct generic_gf_poly *a, con
     if (x == NULL)
         return NULL;
 
-    memcpy(x, c[1], length_diff);
+    memcpy(x, c[1], sizeof(unsigned int) * length_diff);
     for (i = length_diff; i < lx; ++i)
         x[i] = generic_gf_add(c[0][i - length_diff], c[1][i]);
 
@@ -312,6 +307,32 @@ struct generic_gf_poly *generic_gf_poly_multiply(const struct generic_gf_poly *a
      free(product);
 
      return res;
+}
+
+struct generic_gf_poly *generic_gf_poly_multiply_int(const struct generic_gf_poly *a, const unsigned int b)
+{
+    unsigned int size = a->degree + 1;
+    unsigned int *product;
+    struct generic_gf_poly *p;
+
+    if (b == 0) {
+        return generic_gf_poly_dump(a->field->zero);
+    } else if (b == 1) {
+        return generic_gf_poly_dump(a);
+    }
+
+    product = (unsigned int *)malloc(sizeof(unsigned int) * size);
+    if (product == NULL)
+        return NULL;
+
+    for (unsigned int i = 0; i < size; ++i) {
+        product[i] = generic_gf_multiply(a->field, a->coefficients[i], b);
+    }
+
+    p = generic_gf_poly_create(a->field, product, size);
+    free(product);
+
+    return p;
 }
 
 struct generic_gf_poly *generic_gf_poly_multiply_by_monomial(const struct generic_gf_poly *a, const unsigned int degree, const unsigned int coefficient)
