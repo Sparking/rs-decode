@@ -9,8 +9,8 @@ static struct generic_gf_poly **run_euclidean_algorithm(const struct generic_gf 
 {
     struct generic_gf_poly **poly;
     struct generic_gf_poly **sigma, **omiga;
-    struct generic_gf_poly *rlast = NULL, *r = NULL, *rlastlast = NULL;
-    struct generic_gf_poly *tlast = NULL, *t = NULL, *tlastlast = NULL;
+    struct generic_gf_poly *rlast = NULL, *r = NULL;
+    struct generic_gf_poly *tlast = NULL, *t = NULL;
     int ret;
 
     if (field == NULL || a == NULL || b == NULL)
@@ -36,9 +36,8 @@ static struct generic_gf_poly **run_euclidean_algorithm(const struct generic_gf 
     if (t == NULL || tlast == NULL || r == NULL || rlast == NULL)
         goto release_resource;
 
-    rlastlast = tlastlast = NULL;
     while (r->degree >= (R >> 1)) {
-        struct generic_gf_poly *q, *ptemp;
+        struct generic_gf_poly *q, *ptemp, *rlastlast = NULL, *tlastlast = NULL;
 
         if (r->coefficients[0] == 0)
             goto release_resource;
@@ -72,6 +71,7 @@ static struct generic_gf_poly **run_euclidean_algorithm(const struct generic_gf 
         unsigned int dlt = generic_gf_poly_coeffieient(rlast, rlast->degree);
         unsigned int dlt_inverse = generic_gf_inverse(field, dlt);
         while (r->degree >= rlast->degree && r->coefficients[0] != 0) {
+            printf("%d %d\n", r->degree, rlast->degree);
             struct generic_gf_poly *temp[2];
 
             unsigned int degree_diff = r->degree - rlast->degree;
