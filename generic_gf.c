@@ -89,6 +89,15 @@ struct generic_gf *generic_gf_create(const unsigned int primitive,
     return gf;
 }
 
+void generic_gf_release(struct generic_gf *gf)
+{
+    if (gf) {
+        generic_gf_poly_release(gf->zero);
+        generic_gf_poly_release(gf->one);
+        free(gf);
+    }
+}
+
 struct generic_gf_poly *generic_gf_build_monomial(const struct generic_gf *gf,
     const unsigned int degree, const unsigned int coefficient)
 {
@@ -146,7 +155,7 @@ struct generic_gf_poly *generic_gf_poly_create(const struct generic_gf *gf, unsi
                 return NULL;
             }
 
-            memcpy(poly->coefficients, coefficients, size);
+            memcpy(poly->coefficients, coefficients + first_non_zero, size);
             poly->degree = degree - first_non_zero - 1;
         }
     } else {

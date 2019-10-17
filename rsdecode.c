@@ -42,8 +42,6 @@ static struct generic_gf_poly **run_euclidean_algorithm(const struct generic_gf 
         if (r->coefficients[0] == 0)
             goto release_resource;
 
-        generic_gf_poly_release(rlastlast);
-        generic_gf_poly_release(tlastlast);
         rlastlast = generic_gf_poly_dump(rlast);
         tlastlast = generic_gf_poly_dump(tlast);
         if (rlastlast == NULL || tlastlast == NULL) {
@@ -57,6 +55,8 @@ static struct generic_gf_poly **run_euclidean_algorithm(const struct generic_gf 
         rlast = generic_gf_poly_dump(r);
         tlast = generic_gf_poly_dump(t);
         if (rlast == NULL || tlast == NULL) {
+            generic_gf_poly_release(rlastlast);
+            generic_gf_poly_release(tlastlast);
             goto release_resource;
         }
 
@@ -64,6 +64,8 @@ static struct generic_gf_poly **run_euclidean_algorithm(const struct generic_gf 
         r = generic_gf_poly_dump(rlastlast);
         q = generic_gf_poly_dump(field->zero);
         if (r == NULL || q == NULL) {
+            generic_gf_poly_release(rlastlast);
+            generic_gf_poly_release(tlastlast);
             generic_gf_poly_release(q);
             goto release_resource;
         }
@@ -71,14 +73,14 @@ static struct generic_gf_poly **run_euclidean_algorithm(const struct generic_gf 
         unsigned int dlt = generic_gf_poly_coeffieient(rlast, rlast->degree);
         unsigned int dlt_inverse = generic_gf_inverse(field, dlt);
         while (r->degree >= rlast->degree && r->coefficients[0] != 0) {
-            printf("%d %d\n", r->degree, rlast->degree);
             struct generic_gf_poly *temp[2];
-
             unsigned int degree_diff = r->degree - rlast->degree;
             unsigned int scale = generic_gf_multiply(field, generic_gf_poly_coeffieient(r, r->degree), dlt_inverse);
 
             temp[0] = generic_gf_build_monomial(field, degree_diff, scale);
             if (temp[0] == NULL) {
+                generic_gf_poly_release(rlastlast);
+                generic_gf_poly_release(tlastlast);
                 generic_gf_poly_release(q);
                 goto release_resource;
             }
@@ -88,11 +90,15 @@ static struct generic_gf_poly **run_euclidean_algorithm(const struct generic_gf 
             generic_gf_poly_release(q);
             q = temp[1];
             if (q == NULL) {
+                generic_gf_poly_release(rlastlast);
+                generic_gf_poly_release(tlastlast);
                 goto release_resource;
             }
 
             temp[0] = generic_gf_poly_multiply_by_monomial(rlast, degree_diff, scale);
             if (temp[0] == NULL) {
+                generic_gf_poly_release(rlastlast);
+                generic_gf_poly_release(tlastlast);
                 generic_gf_poly_release(q);
                 goto release_resource;
             }
@@ -102,25 +108,33 @@ static struct generic_gf_poly **run_euclidean_algorithm(const struct generic_gf 
             generic_gf_poly_release(r);
             r = temp[1];
             if (r == NULL) {
+                generic_gf_poly_release(rlastlast);
+                generic_gf_poly_release(tlastlast);
                 generic_gf_poly_release(q);
                 goto release_resource;
             }
         }
 
         if (r->degree >= rlast->degree) {
+            generic_gf_poly_release(rlastlast);
+            generic_gf_poly_release(tlastlast);
             generic_gf_poly_release(q);
             goto release_resource;
         }
 
         ptemp = generic_gf_poly_multiply(q, tlast);
+        generic_gf_poly_release(q);
         if (ptemp == NULL) {
-            generic_gf_poly_release(q);
+            generic_gf_poly_release(rlastlast);
+            generic_gf_poly_release(tlastlast);
             goto release_resource;
         }
         generic_gf_poly_release(t);
         t = generic_gf_poly_add(ptemp, tlastlast);
+        generic_gf_poly_release(ptemp);
+        generic_gf_poly_release(rlastlast);
+        generic_gf_poly_release(tlastlast);
         if (t == NULL) {
-            generic_gf_poly_release(q);
             goto release_resource;
         }
     }

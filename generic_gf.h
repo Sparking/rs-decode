@@ -31,7 +31,7 @@ struct generic_gf_poly {
  */
 extern struct generic_gf *generic_gf_create(const unsigned int primitive,
         const unsigned int size, const unsigned int base);
-
+extern void generic_gf_release(struct generic_gf *gf);
 extern unsigned int generic_gf_add(const unsigned int a, const unsigned int b);
 extern unsigned int generic_gf_exp(const struct generic_gf *gf, const unsigned int a);
 extern unsigned int generic_gf_log(const struct generic_gf *gf, const unsigned int a);

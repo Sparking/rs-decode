@@ -16,6 +16,7 @@ int main(void)
 
     field = generic_gf_create(0x011D, 256, 0);
     printf("%d\n", rsdecode(field, codes, 86, 18));
+    generic_gf_release(field);
 
     return 0;
 }
